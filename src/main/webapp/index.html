@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calligraphy guidelines</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<script src="js/jquery-1.8.2.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script>
+$(document).ready(function() {
+    $("#nibCustomOptions input:radio").click(function(e) {
+        if (e.target.id == 'nibCustom') {
+            $("#divCustom").show()
+        } else {
+            $("#divCustom").hide()
+        }
+    })
+})
+</script>
+<div class="row-fluid">
+    <div class="span6">
+        <h1>Guidelines</h1>
+
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="inputEmail">Nib size</label>
+
+                <div class="controls" id="nibCustomOptions">
+                    <label class="radio inline">
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                        1/8"
+                    </label>
+                    <label class="radio inline">
+                        <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+                        1/6"
+                    </label>
+                    <label class="radio inline">
+                        <input type="radio" name="optionsRadios" id="nibCustom" value="option3">
+                        Custom
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group hide" id="divCustom">
+                <label class="control-label" for="inputEmail">Custom nib size</label>
+
+                <div class="controls">
+                    <input type="text" id="inputEmail" placeholder="Nib size in inches">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <button type="submit" class="btn">Get PDF!</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="span6">Preview</div>
+</div>
+</body>
+</html>
