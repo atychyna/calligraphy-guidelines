@@ -3,7 +3,7 @@ import java.io.OutputStream
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream
 import org.apache.pdfbox.pdmodel.{PDPage, PDDocument}
 
-case class Line(distanceInNibs: Int, width: Float = 1f, color: Color = Color.decode("#ECECEC"))
+case class Line(distance: Float, width: Float = 1f, color: Color = Color.decode("#ECECEC"))
 
 class PDFGuidelines(val config: GuidelinesConfig, val lines: Array[Line]) extends Guidelines(config) {
     require(config != null, "GuidelinesConfig should be provided")
@@ -20,7 +20,7 @@ class PDFGuidelines(val config: GuidelinesConfig, val lines: Array[Line]) extend
         for {i <- 0 to segmentsCount
              l <- 0 until lines.length} {
             val line = lines(l)
-            distance -= inchesToUnits(line.distanceInNibs * config.nib)
+            distance -= inchesToUnits(line.distance)
             stream.setLineWidth(line.width)
             stream.setStrokingColor(line.color)
             stream.drawLine(0, distance, box.getWidth, distance)
@@ -36,17 +36,17 @@ class PDFGuidelines(val config: GuidelinesConfig, val lines: Array[Line]) extend
 
     private def mmToUnits(mm: Float) = 1 / (10 * 2.54f) * userSpaceUnitDPI
 
-    private def segmentHeight = inchesToUnits((0f /: lines)(_ + _.distanceInNibs * config.nib))
+    private def segmentHeight = inchesToUnits((0f /: lines)(_ + _.distance))
 }
 
 object PDFGuidelines {
-    val lines: Array[Line] = Array(
-        Line(3, 0.5f),
-        Line(3, color = Color.decode("#DCDCDC")),
-        Line(5, color = Color.decode("#DCDCDC"))
-    )
 
     def apply(config: GuidelinesConfig) = {
+        val lines: Array[Line] = Array(
+            Line(config.descender.orElse(config.nib.map(_ * 3)).get, 0.5f),
+            Line(config.descender.orElse(config.nib.map(_ * 3)).get, color = Color.decode("#DCDCDC")),
+            Line(config.descender.orElse(config.nib.map(_ * 5)).get, color = Color.decode("#DCDCDC"))
+        )
         new PDFGuidelines(config, lines)
     }
 

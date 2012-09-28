@@ -28,6 +28,12 @@ $(document).ready(function() {
             $("#divCustom").hide()
         }
     })
+    $('#showBasic').click(function() {
+        if ($('#advancedOptions').hasClass('in')) { $('#advancedOptions').collapse('hide') }
+    })
+    $('#showAdvanced').click(function() {
+        if (!$('#advancedOptions').hasClass('in')) { $('#advancedOptions').collapse('show') }
+    })
     $("canvas").drawRect({
         strokeStyle: "#000",
         strokeWidth: 1,
@@ -44,9 +50,18 @@ $(document).ready(function() {
 
         <p>Generate your custom calligraphy guidelines here!</p>
     </div>
+    <div class="container-fluid">
     <div class="row-fluid">
         <div class="span6">
-
+            <div class="pagination-centered">
+                <button type="button" id="showBasic" class="btn btn-link ">
+                    Basic settings
+                </button>
+                |
+                <button type="button" id="showAdvanced" class="btn btn-link" data-basic-text="Basic settings">
+                    Advanced settings
+                </button>
+            </div>
             <form class="form-horizontal" action="guidelines" method="post">
                 <div class="control-group">
                     <label class="control-label" for="inputEmail">Nib size</label>
@@ -74,6 +89,32 @@ $(document).ready(function() {
                         <input type="text" name="customNibSize" id="customNibSize" placeholder="Nib size in inches">
                     </div>
                 </div>
+                <div id="advancedOptions" class="collapse">
+                    <div class="control-group">
+                        <label class="control-label" for="ascenderHeight">Ascender height</label>
+
+                        <div class="controls">
+                            <input type="text" name="ascenderHeight" id="ascenderHeight"
+                                   placeholder="Ascender height in nibs">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="bodyHeight">Body height</label>
+
+                        <div class="controls">
+                            <input type="text" name="bodyHeight" id="bodyHeight"
+                                   placeholder="Body height in nibs">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="descenderHeight">Descender height</label>
+
+                        <div class="controls">
+                            <input type="text" name="descenderHeight" id="descenderHeight"
+                                   placeholder="Descender height in nibs">
+                        </div>
+                    </div>
+                </div>
                 <div class="control-group">
                     <div class="controls">
                         <button type="submit" class="btn">Get PDF!</button>
@@ -85,6 +126,7 @@ $(document).ready(function() {
             <canvas width="200" height="292"></canvas>
         </div>
     </div>
+        </div>
 </div>
 </body>
 </html>
