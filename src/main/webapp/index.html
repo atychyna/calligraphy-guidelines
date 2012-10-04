@@ -9,31 +9,16 @@
 <script src="js/jquery-1.8.2.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/jcanvas.min.js"></script>
+<script src="js/knockout-2.1.0.js"></script>
 <script>
+
 function Rectangle(x,y) {
     this.width = x;
     this.height = y;
 }
 
-$(document).ready(function() {
+function drawPreview() {
     var c = new Rectangle($('canvas').width(), $('canvas').height());
-    var customNibChecked = $('#nibCustom:checked').val()
-    if (customNibChecked == 'undefined' || !customNibChecked) {
-       $("#divCustom").hide()
-    }
-    $('#nibCustomOptions input:radio').click(function(e) {
-        if (e.target.id == 'nibCustom') {
-            $("#divCustom").show()
-        } else {
-            $("#divCustom").hide()
-        }
-    })
-    $('#showBasic').click(function() {
-        if ($('#advancedOptions').hasClass('in')) { $('#advancedOptions').collapse('hide') }
-    })
-    $('#showAdvanced').click(function() {
-        if (!$('#advancedOptions').hasClass('in')) { $('#advancedOptions').collapse('show') }
-    })
     $("canvas").drawRect({
         strokeStyle: "#000",
         strokeWidth: 1,
@@ -42,6 +27,23 @@ $(document).ready(function() {
         height: c.height,
         fromCenter: false
     });
+}
+
+var config = {
+    advanced : ko.observable(false),
+    custom : ko.observable(false),
+}
+
+function showAdvanced(show) {
+    if (show != this.advanced()) {
+        $('#advancedOptions').collapse((show) ? 'show' : 'hide');
+        this.advanced(show);
+    }
+}
+
+$(document).ready(function() {
+    drawPreview();
+    ko.applyBindings(config);
 })
 </script>
 <div class="container">
@@ -51,82 +53,83 @@ $(document).ready(function() {
         <p>Generate your custom calligraphy guidelines here!</p>
     </div>
     <div class="container-fluid">
-    <div class="row-fluid">
-        <div class="span6">
-            <div class="pagination-centered">
-                <button type="button" id="showBasic" class="btn btn-link ">
-                    Basic settings
-                </button>
-                |
-                <button type="button" id="showAdvanced" class="btn btn-link" data-basic-text="Basic settings">
-                    Advanced settings
-                </button>
+        <div class="row-fluid">
+            <div class="span6">
+                <div class="pagination-centered">
+                    <button type="button" id="showBasic" class="btn btn-link"
+                            data-bind="click: showAdvanced.bind($root, false)">
+                        Basic settings
+                    </button>
+                    |
+                    <button type="button" id="showAdvanced" class="btn btn-link"
+                            data-bind="click: showAdvanced.bind($root, true)">
+                        Advanced settings
+                    </button>
+                </div>
+                <form class="form-horizontal" action="guidelines" method="post">
+                    <div class="control-group">
+                        <label class="control-label" for="units">Units</label>
+
+                        <div class="controls">
+                            <select name="units" class="input-small">
+                                <option>inches</option>
+                                <option>mm</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="nibSize">Nib size</label>
+
+                        <div class="controls">
+                            <input type="text" class="input-small" name="nibSize" id="nibSize" placeholder="Nib size">
+                        </div>
+                    </div>
+                    <div id="advancedOptions" class="collapse">
+                        <div class="control-group">
+                            <label class="control-label" for="ascenderHeight">Ascender height</label>
+
+                            <div class="controls">
+                                <input type="text" class="input-small" name="ascenderHeight" id="ascenderHeight"
+                                       placeholder="Ascender">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="bodyHeight">Body height</label>
+
+                            <div class="controls">
+                                <input type="text" class="input-small" name="bodyHeight" id="bodyHeight"
+                                       placeholder="Body">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="descenderHeight">Descender height</label>
+
+                            <div class="controls">
+                                <input type="text" class="input-small" name="descenderHeight" id="descenderHeight"
+                                       placeholder="Descender">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="sizeInNibs">Ascender/Body/Descender in nibs (= height *
+                                nib)</label>
+
+                            <div class="controls">
+                                <input type="checkbox" name="sizeInNibs" id="sizeInNibs">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="controls">
+                            <button type="submit" class="btn">Get PDF!</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <form class="form-horizontal" action="guidelines" method="post">
-                <div class="control-group">
-                    <label class="control-label" for="inputEmail">Nib size</label>
-
-                    <div class="controls" id="nibCustomOptions">
-                        <label class="radio inline">
-                            <input type="radio" name="nibSize" id="optionsRadios1" value="0.50" checked>
-                            1/8"
-                        </label>
-                        <label class="radio inline">
-                            <input type="radio" name="nibSize" id="optionsRadios2" value="0.25">
-                            1/6"
-                        </label>
-                        <label class="radio inline">
-                            <input type="radio" name="nibSize" id="nibCustom" value="custom">
-                            Custom
-                        </label>
-                    </div>
-                </div>
-
-                <div class="control-group" id="divCustom">
-                    <label class="control-label" for="customNibSize">Custom nib size</label>
-
-                    <div class="controls">
-                        <input type="text" name="customNibSize" id="customNibSize" placeholder="Nib size in inches">
-                    </div>
-                </div>
-                <div id="advancedOptions" class="collapse">
-                    <div class="control-group">
-                        <label class="control-label" for="ascenderHeight">Ascender height</label>
-
-                        <div class="controls">
-                            <input type="text" name="ascenderHeight" id="ascenderHeight"
-                                   placeholder="Ascender height in nibs">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="bodyHeight">Body height</label>
-
-                        <div class="controls">
-                            <input type="text" name="bodyHeight" id="bodyHeight"
-                                   placeholder="Body height in nibs">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="descenderHeight">Descender height</label>
-
-                        <div class="controls">
-                            <input type="text" name="descenderHeight" id="descenderHeight"
-                                   placeholder="Descender height in nibs">
-                        </div>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn">Get PDF!</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="span6">
-            <canvas width="200" height="292"></canvas>
+            <div class="span6">
+                <canvas width="200" height="292"></canvas>
+            </div>
         </div>
     </div>
-        </div>
 </div>
 </body>
 </html>
