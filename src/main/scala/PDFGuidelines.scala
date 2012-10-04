@@ -12,7 +12,7 @@ sealed abstract class Unit {
 case class Mm(mm: Float) extends Unit {
     val units = mmToUnits(mm)
 
-    private def mmToUnits(mm: Float) = 1 / (10 * 2.54f) * userSpaceUnitDPI
+    private def mmToUnits(mm: Float) = (mm / 25.4f) * userSpaceUnitDPI
 }
 
 case class Inches(inches: Float) extends Unit {
@@ -55,6 +55,7 @@ class PDFGuidelines(val config: GuidelinesConfig, val lines: Array[Line]) extend
 object PDFGuidelines {
 
     def apply(config: GuidelinesConfig) = {
+        require(config != null, "GuidelinesConfig should be provided")
         val lines: Array[Line] = Array(
             Line(Inches(config.descender.orElse(config.nib.map(_ * 3)).get), 0.5f),
             Line(Inches(config.descender.orElse(config.nib.map(_ * 3)).get), color = Color.decode("#DCDCDC")),

@@ -8,30 +8,10 @@
 <body>
 <script src="js/jquery-1.8.2.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
-<script src="js/jcanvas.min.js"></script>
 <script src="js/knockout-2.1.0.js"></script>
 <script>
-
-function Rectangle(x,y) {
-    this.width = x;
-    this.height = y;
-}
-
-function drawPreview() {
-    var c = new Rectangle($('canvas').width(), $('canvas').height());
-    $("canvas").drawRect({
-        strokeStyle: "#000",
-        strokeWidth: 1,
-        x: 0, y: 0,
-        width: c.width,
-        height: c.height,
-        fromCenter: false
-    });
-}
-
 var config = {
-    advanced : ko.observable(false),
-    custom : ko.observable(false),
+    advanced : ko.observable(false)
 }
 
 function showAdvanced(show) {
@@ -42,7 +22,6 @@ function showAdvanced(show) {
 }
 
 $(document).ready(function() {
-    drawPreview();
     ko.applyBindings(config);
 })
 </script>
@@ -52,20 +31,20 @@ $(document).ready(function() {
 
         <p>Generate your custom calligraphy guidelines here!</p>
     </div>
-    <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="span6">
-                <div class="pagination-centered">
-                    <button type="button" id="showBasic" class="btn btn-link"
-                            data-bind="click: showAdvanced.bind($root, false)">
-                        Basic settings
-                    </button>
-                    |
-                    <button type="button" id="showAdvanced" class="btn btn-link"
-                            data-bind="click: showAdvanced.bind($root, true)">
-                        Advanced settings
-                    </button>
-                </div>
+    <div class="container">
+        <div class="row pagination-centered">
+            <button type="button" id="showBasic" class="btn btn-link"
+                    data-bind="click: showAdvanced.bind($root, false)">
+                Basic settings
+            </button>
+            |
+            <button type="button" id="showAdvanced" class="btn btn-link"
+                    data-bind="click: showAdvanced.bind($root, true)">
+                Advanced settings
+            </button>
+        </div>
+        <div class="row">
+            <div class="offset3 span4">
                 <form class="form-horizontal" action="guidelines" method="post">
                     <div class="control-group">
                         <label class="control-label" for="units">Units</label>
@@ -124,9 +103,6 @@ $(document).ready(function() {
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="span6">
-                <canvas width="200" height="292"></canvas>
             </div>
         </div>
     </div>
