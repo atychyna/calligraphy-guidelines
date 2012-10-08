@@ -11,20 +11,25 @@
 <script src="js/knockout-2.1.0.js"></script>
 <script src="js/knockout.validation.js"></script>
 <script>
+var isEmpty = ko.validation.utils.isEmptyVal
+
+function isNotEmpty(e) {
+    return !isEmpty(e);
+}
 
 ko.validation.configure({
-    registerExtenders: true,
     messagesOnModified: true,
     insertMessages: false,
-    parseInputAttributes: true,
-    messageTemplate: null
+    decorateElement: true,
+    errorElementClass: 'warning'
 });
 
 var config = {
-    advanced : ko.observable(false),
-    ascender : ko.observable(),
-    descender : ko.observable(),
-    body : ko.observable()
+    ascender : ko.observable().extend({number: {message: "Ascender height should be a number"}}),
+    descender : ko.observable().extend({number: {message: "Descender height should be a number"}}),
+    body : ko.observable().extend({number: {message: "Body height should be a number"}}),
+    nib : ko.observable().extend({number: {message: "Nib size should be a number"}}),
+    sizeInNibs : ko.observable(false)
 }
 
 config.showAdvanced = function(show) {
@@ -34,28 +39,37 @@ config.showAdvanced = function(show) {
         this.advanced(show);
     }
 }
+
 config.validate = function(form) {
     if (this.errors().length > 0) {
-        $('#alerts').show();
         this.errors.showAllMessages();
+    } else {
+        return true;
     }
 }
-config.allHeightsEntered = function() {
-    alert(ko.validation.utils.isEmptyVal(this.descender()));
-    return ko.validation.utils.isEmptyVal(this.descender());
+
+config.allCustomHeightsEmpty = function() {
+    return isEmpty(config.descender()) && isEmpty(config.ascender()) && isEmpty(config.body());
+}
+config.allCustomHeightsNotEmpty = function() {
+    return isNotEmpty(config.descender()) && isNotEmpty(config.ascender()) && isNotEmpty(config.body());
 }
 
+ko.validation.rules['nibOrCustom'] = {
+    validator: function (val, enabled) {
+        return config.allCustomHeightsNotEmpty() || config.allCustomHeightsEmpty();
+    },
+    message: 'Please enter all of the body/ascender/descender values or none of them.'
+};
+ko.validation.registerExtenders();
 
 $(document).ready(function() {
     ko.applyBindings(config);
-    ko.validation.rules['allHeights'] = {
-        validator: function (val, enabled) {
-            return utils.isEmptyVal(val) || val.length >= minLength;
-        },
-        message: 'Please enter at least characters.'
-    };
     config.errors = ko.validation.group(config);
-    config.ascender.extend({ required: {onlyIf : function() {return config.allHeightsEntered();},params: true,message:'asdasd'} });
+    config.nib.extend({required : {onlyIf: function () {return config.allCustomHeightsEmpty() || config.sizeInNibs();} }});
+    config.ascender.extend({ nibOrCustom : true });
+    config.descender.extend({ nibOrCustom : true });
+    config.body.extend({ nibOrCustom : true });
 })
 </script>
 <div class="container">
@@ -64,9 +78,13 @@ $(document).ready(function() {
 
         <p>Generate your custom calligraphy guidelines here!</p>
     </div>
-    <div class="alert" id="alerts" hidden>
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <span data-bind="validationMessage: ascender"/>
+    <div class="text-warning" id="alerts">
+        <ul class="unstyled">
+            <li data-bind="validationMessage: ascender"></li>
+            <li data-bind="validationMessage: body"></li>
+            <li data-bind="validationMessage: descender"></li>
+            <li data-bind="validationMessage: nib"></li>
+        </ul>
     </div>
     <form class="form-horizontal" action="guidelines" method="post" data-bind="submit: validate">
         <div class="row-fluid">
@@ -85,12 +103,12 @@ $(document).ready(function() {
                                     </select>
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group" data-bind="validationElement: nib">
                                 <label class="control-label" for="nibSize">Nib size</label>
 
                                 <div class="controls">
                                     <input type="text" class="input-small" name="nibSize" id="nibSize"
-                                           placeholder="Nib size">
+                                           placeholder="Nib size" data-bind="value: nib">
                                 </div>
                             </div>
                         </fieldset>
@@ -98,7 +116,7 @@ $(document).ready(function() {
                     <div class="span6">
                         <fieldset>
                             <legend>Advanced options</legend>
-                            <div class="control-group">
+                            <div class="control-group" data-bind="validationElement: ascender">
                                 <label class="control-label" for="ascenderHeight">Ascender height</label>
 
                                 <div class="controls">
@@ -106,20 +124,20 @@ $(document).ready(function() {
                                            placeholder="Ascender" data-bind="value: ascender">
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group" data-bind="validationElement: body">
                                 <label class="control-label" for="bodyHeight">Body height</label>
 
                                 <div class="controls">
                                     <input type="text" class="input-small" name="bodyHeight" id="bodyHeight"
-                                           placeholder="Body">
+                                           placeholder="Body" data-bind="value: body">
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group" data-bind="validationElement: descender">
                                 <label class="control-label" for="descenderHeight">Descender height</label>
 
                                 <div class="controls">
                                     <input type="text" class="input-small" name="descenderHeight" id="descenderHeight"
-                                           placeholder="Descender">
+                                           placeholder="Descender" data-bind="value: descender">
                                 </div>
                             </div>
                             <div class="control-group">
@@ -128,7 +146,8 @@ $(document).ready(function() {
                                     nib)</label>
 
                                 <div class="controls">
-                                    <input type="checkbox" name="sizeInNibs" id="sizeInNibs">
+                                    <input type="checkbox" name="sizeInNibs" id="sizeInNibs"
+                                           data-bind="checked: sizeInNibs">
                                 </div>
                             </div>
                         </fieldset>
