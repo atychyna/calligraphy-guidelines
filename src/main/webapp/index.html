@@ -66,7 +66,7 @@ ko.validation.registerExtenders();
 $(document).ready(function() {
     ko.applyBindings(config);
     config.errors = ko.validation.group(config);
-    config.nib.extend({required : {onlyIf: function () {return config.allCustomHeightsEmpty() || config.sizeInNibs();} }});
+    config.nib.extend({required : {onlyIf: function () {return config.allCustomHeightsEmpty() || config.sizeInNibs();}, message: "Please enter nib size" }});
     config.ascender.extend({ nibOrCustom : true });
     config.descender.extend({ nibOrCustom : true });
     config.body.extend({ nibOrCustom : true });
