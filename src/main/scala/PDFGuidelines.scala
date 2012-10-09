@@ -7,24 +7,31 @@ sealed abstract class Unit {
     val userSpaceUnitDPI = 72
 
     def units: Float
+
+    def value: Float
+
+    def create(value: Float): Unit
+
+    def *(f: Float) = create(value * f)
 }
 
 case class Mm(mm: Float) extends Unit {
-    val units = mmToUnits(mm)
+    val value = mm
+    val units = (value / 25.4f) * userSpaceUnitDPI
 
-    private def mmToUnits(mm: Float) = (mm / 25.4f) * userSpaceUnitDPI
+    def create(value: Float) = new Mm(value)
 }
 
 case class Inches(inches: Float) extends Unit {
-    val units = inchesToUnits(inches)
+    val value = inches
+    val units = inches * userSpaceUnitDPI
 
-    private def inchesToUnits(inches: Float) = inches * userSpaceUnitDPI
+    def create(value: Float) = new Inches(value)
 }
 
 case class Line(distance: Unit, width: Float = 1f, color: Color = Color.decode("#ECECEC"))
 
-class PDFGuidelines(val config: GuidelinesConfig, val lines: Array[Line]) extends Guidelines(config) {
-    require(config != null, "GuidelinesConfig should be provided")
+class PDFGuidelines(val lines: Array[Line]) extends Guidelines {
     require(lines != null, "Please specify lines to draw")
 
     def save(out: OutputStream) {
@@ -54,17 +61,17 @@ class PDFGuidelines(val config: GuidelinesConfig, val lines: Array[Line]) extend
 
 object PDFGuidelines {
 
-    def apply(config: GuidelinesConfig) = {
-        require(config != null, "GuidelinesConfig should be provided")
+    def apply(nib: Unit, ascender: Float, body: Float, descender: Float) = {
+        require(nib != null, "Nib should be provided")
         val lines: Array[Line] = Array(
-            Line(Inches(config.descender.orElse(config.nib.map(_ * 3)).get), 0.5f),
-            Line(Inches(config.descender.orElse(config.nib.map(_ * 3)).get), color = Color.decode("#DCDCDC")),
-            Line(Inches(config.descender.orElse(config.nib.map(_ * 5)).get), color = Color.decode("#DCDCDC"))
+            Line(nib * descender, 0.5f),
+            Line(nib * ascender, color = Color.decode("#DCDCDC")),
+            Line(nib * body, color = Color.decode("#DCDCDC"))
         )
-        new PDFGuidelines(config, lines)
+        new PDFGuidelines(lines)
     }
 
-    def apply(config: GuidelinesConfig, lines: Array[Line]) = {
-        new PDFGuidelines(config, lines)
+    def apply(lines: Array[Line]) = {
+        new PDFGuidelines(lines)
     }
 }

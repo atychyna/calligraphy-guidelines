@@ -6,7 +6,7 @@ class GuidelinesServlet extends ScalatraServlet {
         params.get(name).filter(_.trim.nonEmpty)
     }
 
-    post("/guidelines") {
+    post() {
         val nibSize = params("nibSize") match {
             case s: String if !s.isEmpty => Some(s.toFloat)
             case _ => None
@@ -29,6 +29,6 @@ class GuidelinesServlet extends ScalatraServlet {
             Line(if (sizeInNibs) units(ascender.getOrElse(3f) * nibSize.get) else units(ascender.getOrElse(3 * nibSize.get)), color = Color.decode("#DCDCDC")),
             Line(if (sizeInNibs) units(body.getOrElse(5f) * nibSize.get) else units(body.getOrElse(5 * nibSize.get)), color = Color.decode("#DCDCDC"))
         )
-        PDFGuidelines(GuidelinesConfig(nibSize), lines).save(response.getOutputStream)
+        PDFGuidelines(lines).save(response.getOutputStream)
     }
 }

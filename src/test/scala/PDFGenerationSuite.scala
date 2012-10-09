@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 
 class PDFGenerationSuite extends FunSuite {
     test("test PDF file is generated") {
-        val pdf = PDFGuidelines(GuidelinesConfig(Some(1f / 8)))
+        val pdf = PDFGuidelines(Inches(1f / 8), 3, 5, 3)
         val tmpFile = File.createTempFile("pdf-guidelines", ".pdf")
         pdf.save(new FileOutputStream(tmpFile))
         assert(tmpFile.exists())
@@ -17,7 +17,7 @@ class PDFGenerationSuite extends FunSuite {
             Line(Mm(20f), color = Color.decode("#DCDCDC")),
             Line(Mm(10f), color = Color.decode("#DCDCDC"))
         )
-        val pdf = PDFGuidelines(GuidelinesConfig(), lines)
+        val pdf = PDFGuidelines(lines)
         val tmpFile = File.createTempFile("pdf-guidelines", ".pdf")
         pdf.save(new FileOutputStream(tmpFile))
         assert(tmpFile.exists())
@@ -29,7 +29,7 @@ class PDFGenerationSuite extends FunSuite {
             PDFGuidelines(null)
         }
         intercept[IllegalArgumentException] {
-            PDFGuidelines(GuidelinesConfig(), null)
+            PDFGuidelines(null, 0, 0, 0)
         }
     }
 }

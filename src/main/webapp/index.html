@@ -25,11 +25,11 @@ ko.validation.configure({
 });
 
 var config = {
-    ascender : ko.observable().extend({number: {message: "Ascender height should be a number"}}),
-    descender : ko.observable().extend({number: {message: "Descender height should be a number"}}),
-    body : ko.observable().extend({number: {message: "Body height should be a number"}}),
+    ascender : ko.observable(3).extend({number: {message: "Ascender height should be a number"}}),
+    descender : ko.observable(3).extend({number: {message: "Descender height should be a number"}}),
+    body : ko.observable(5).extend({number: {message: "Body height should be a number"}}),
     nib : ko.observable().extend({number: {message: "Nib size should be a number"}}),
-    sizeInNibs : ko.observable(false)
+    sizeInNibs : ko.observable(true)
 }
 
 config.showAdvanced = function(show) {
@@ -86,7 +86,7 @@ $(document).ready(function() {
             <li data-bind="validationMessage: nib"></li>
         </ul>
     </div>
-    <form class="form-horizontal" action="guidelines" method="post" data-bind="submit: validate">
+    <form class="form-horizontal" action="generate" method="post" data-bind="submit: validate">
         <div class="row-fluid">
             <div class="span12">
                 <div class="row-fluid">
