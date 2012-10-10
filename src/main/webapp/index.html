@@ -25,10 +25,10 @@ ko.validation.configure({
 });
 
 var config = {
-    ascender : ko.observable(3).extend({number: {message: "Ascender height should be a number"}}),
-    descender : ko.observable(3).extend({number: {message: "Descender height should be a number"}}),
-    body : ko.observable(5).extend({number: {message: "Body height should be a number"}}),
-    nib : ko.observable().extend({number: {message: "Nib size should be a number"}}),
+    ascender : ko.observable(3).extend({number: true, required: true}),
+    descender : ko.observable(3).extend({number: true}),
+    body : ko.observable(5).extend({number: true}),
+    nib : ko.observable().extend({number: true}),
     sizeInNibs : ko.observable(true)
 }
 
@@ -48,28 +48,10 @@ config.validate = function(form) {
     }
 }
 
-config.allCustomHeightsEmpty = function() {
-    return isEmpty(config.descender()) && isEmpty(config.ascender()) && isEmpty(config.body());
-}
-config.allCustomHeightsNotEmpty = function() {
-    return isNotEmpty(config.descender()) && isNotEmpty(config.ascender()) && isNotEmpty(config.body());
-}
-
-ko.validation.rules['nibOrCustom'] = {
-    validator: function (val, enabled) {
-        return config.allCustomHeightsNotEmpty() || config.allCustomHeightsEmpty();
-    },
-    message: 'Please enter all of the body/ascender/descender values or none of them.'
-};
-ko.validation.registerExtenders();
-
 $(document).ready(function() {
     ko.applyBindings(config);
     config.errors = ko.validation.group(config);
-    config.nib.extend({required : {onlyIf: function () {return config.allCustomHeightsEmpty() || config.sizeInNibs();}, message: "Please enter nib size" }});
-    config.ascender.extend({ nibOrCustom : true });
-    config.descender.extend({ nibOrCustom : true });
-    config.body.extend({ nibOrCustom : true });
+    config.nib.extend({required : {onlyIf: function () {return config.sizeInNibs();} }});
 })
 </script>
 <div class="container">
@@ -78,89 +60,94 @@ $(document).ready(function() {
 
         <p>Generate your custom calligraphy guidelines here!</p>
     </div>
-    <div class="text-warning" id="alerts">
-        <ul class="unstyled">
-            <li data-bind="validationMessage: ascender"></li>
-            <li data-bind="validationMessage: body"></li>
-            <li data-bind="validationMessage: descender"></li>
-            <li data-bind="validationMessage: nib"></li>
-        </ul>
-    </div>
     <form class="form-horizontal" action="generate" method="post" data-bind="submit: validate">
         <div class="row-fluid">
-            <div class="span12">
-                <div class="row-fluid">
-                    <div class="span6">
-                        <fieldset>
-                            <legend>Basic options</legend>
-                            <div class="control-group">
-                                <label class="control-label" for="units">Units</label>
+            <div class="span6 offset3">
+                <fieldset>
+                    <!--<legend>Basic options</legend>-->
+                    <div class="control-group">
+                        <label class="control-label" for="units">Units</label>
 
-                                <div class="controls">
-                                    <select name="units" class="input-small">
-                                        <option>inches</option>
-                                        <option>mm</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="control-group" data-bind="validationElement: nib">
-                                <label class="control-label" for="nibSize">Nib size</label>
-
-                                <div class="controls">
-                                    <input type="text" class="input-small" name="nibSize" id="nibSize"
-                                           placeholder="Nib size" data-bind="value: nib">
-                                </div>
-                            </div>
-                        </fieldset>
+                        <div class="controls">
+                            <select name="units" class="input-small">
+                                <option>inches</option>
+                                <option>mm</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="span6">
-                        <fieldset>
-                            <legend>Advanced options</legend>
-                            <div class="control-group" data-bind="validationElement: ascender">
-                                <label class="control-label" for="ascenderHeight">Ascender height</label>
+                    <div class="control-group" data-bind="validationElement: nib">
+                        <label class="control-label" for="nibSize">Nib size</label>
 
-                                <div class="controls">
-                                    <input type="text" class="input-small" name="ascenderHeight" id="ascenderHeight"
-                                           placeholder="Ascender" data-bind="value: ascender">
-                                </div>
-                            </div>
-                            <div class="control-group" data-bind="validationElement: body">
-                                <label class="control-label" for="bodyHeight">Body height</label>
-
-                                <div class="controls">
-                                    <input type="text" class="input-small" name="bodyHeight" id="bodyHeight"
-                                           placeholder="Body" data-bind="value: body">
-                                </div>
-                            </div>
-                            <div class="control-group" data-bind="validationElement: descender">
-                                <label class="control-label" for="descenderHeight">Descender height</label>
-
-                                <div class="controls">
-                                    <input type="text" class="input-small" name="descenderHeight" id="descenderHeight"
-                                           placeholder="Descender" data-bind="value: descender">
-                                </div>
-                            </div>
-                            <div class="control-group">
-                                <label class="control-label" for="sizeInNibs">Ascender/Body/Descender in nibs (= height
-                                    *
-                                    nib)</label>
-
-                                <div class="controls">
-                                    <input type="checkbox" name="sizeInNibs" id="sizeInNibs"
-                                           data-bind="checked: sizeInNibs">
-                                </div>
-                            </div>
-                        </fieldset>
+                        <div class="controls">
+                            <input type="text" class="input-small" name="nibSize" id="nibSize"
+                                   placeholder="Nib size" data-bind="value: nib">
+                            <span class="help-inline" data-bind="validationMessage: nib"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="row-fluid">
-                    <div class="span12 pagination-centered">
-                        <button type="submit" class="btn btn-large btn-primary">Get PDF!</button>
+                </fieldset>
+                <fieldset>
+                    <legend>Advanced options</legend>
+                    <div class="control-group" data-bind="validationElement: ascender">
+                        <label class="control-label" for="ascenderHeight">Ascender height</label>
+
+                        <div class="controls">
+                            <input type="text" class="input-small" name="ascenderHeight" id="ascenderHeight"
+                                   placeholder="Ascender" data-bind="value: ascender">
+                            <span class="help-inline" data-bind="validationMessage: ascender"></span>
+                        </div>
                     </div>
-                </div>
+                    <div class="control-group" data-bind="validationElement: body">
+                        <label class="control-label" for="bodyHeight">Body height</label>
+
+                        <div class="controls">
+                            <input type="text" class="input-small" name="bodyHeight" id="bodyHeight"
+                                   placeholder="Body" data-bind="value: body">
+                            <span class="help-inline" data-bind="validationMessage: body"></span>
+                        </div>
+                    </div>
+                    <div class="control-group" data-bind="validationElement: descender">
+                        <label class="control-label" for="descenderHeight">Descender height</label>
+
+                        <div class="controls">
+                            <input type="text" class="input-small" name="descenderHeight" id="descenderHeight"
+                                   placeholder="Descender" data-bind="value: descender">
+                            <span class="help-inline" data-bind="validationMessage: descender"></span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="sizeInNibs">Ascender/Body/Descender in nibs (= height
+                            *
+                            nib)</label>
+
+                        <div class="controls">
+                            <input type="checkbox" name="sizeInNibs" id="sizeInNibs"
+                                   data-bind="checked: sizeInNibs">
+                        </div>
+                    </div>
+                </fieldset>
             </div>
         </div>
-    </form>
+        <div class="row-fluid">
+            <div class="span12 pagination-centered">
+                <button type="submit" class="btn btn-large btn-primary">Get PDF!</button>
+            </div>
+        </div>
 </div>
+</div>
+</form>
+</div>
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://kruton.info/piwik/" : "http://kruton.info/piwik/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 1);
+piwikTracker.trackPageView();
+piwikTracker.enableLinkTracking();
+} catch( err ) {}
+</script>
+<noscript><p><img src="http://kruton.info/piwik/piwik.php?idsite=1" style="border:0" alt=""/></p></noscript>
+<!-- End Piwik Tracking Code -->
 </body>
 </html>
